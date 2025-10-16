@@ -98,9 +98,3 @@ The token is now ready for NFC tap-to-pay transactions. The user sees confirmati
 - **No server-side storage**: Walt never sees or stores unencrypted card data
 - **Device binding**: The DPAN is cryptographically tied to the device's hardware-backed keystore
 - **Attestation**: Play Integrity and key attestation prove device authenticity to the aggregator
-
-## Related Documentation
-
-- [NFC Transactions](nfc-transactions.md) — How tap-to-pay works with the provisioned DPAN
-- [Secure Storage](secure-storage.md) — Details on Android Keystore and TEE architecture
-- [Privacy by Design](privacy-by-design.md) — Walt's data handling principles
