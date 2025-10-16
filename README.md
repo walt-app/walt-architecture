@@ -1,6 +1,6 @@
 # Walt — Architecture & Design
 
-**Walt** is a privacy-first digital wallet for Android that allows users to securely load and use their payment cards for tap-to-pay — without relying on Google Wallet or Apple Pay.
+**Walt** is a privacy-first digital wallet for Android that allows users to securely load and use their payment cards for tap-to-pay — without relying on Google Wallet.
 
 Walt’s mission is to make **private, independent mobile payments** possible.
 Users can sign up at [**walt.is**](https://walt.is) to join the waitlist and learn about progress toward the first public release.
@@ -9,14 +9,13 @@ Users can sign up at [**walt.is**](https://walt.is) to join the waitlist and lea
 
 ## Intent
 
-Most mobile payments today depend on closed ecosystems — like Google Wallet or Apple Pay — that mediate between the user, bank, and network. Walt takes a different approach:
+Walt exists to give people an alternative to Google Wallet — a private, open, and independent way to make tap-to-pay payments on Android.
 
-- **Direct-to-aggregator model:** Walt integrates directly with PCI compliant payment aggregators to handle tokenization and DPAN issuance from Visa and Mastercard.
-- **On-device data:** All API calls are made directly from the device to the aggregator, keeping the architecture lean and privacy-preserving. Walt does not host any centralized processing or databases.
-- **User-controlled data:** Card data never passes through Walt’s own servers; encryption and eligibility checks happen between the app and Mastercard/Visa via the aggregator.
-- **HCE-based payments:** Walt uses Android’s **Host Card Emulation (HCE)** APIs to enable NFC tap-to-pay functionality with virtual cards.
+We believe your spending data is sacred.
+Walt never stores your card data, transactions, or behavior on our servers.
+Everything that matters lives encrypted on your own phone.
 
-This architecture gives users modern mobile payment capability without locking them into a single vendor ecosystem.
+There’s no AI, no data mining, no ads — just a simple flow:
 
 ---
 
@@ -28,7 +27,7 @@ This architecture gives users modern mobile payment capability without locking t
    Once approved, the DPAN is stored securely on the device for use in NFC transactions.
    Find more details in [Card Loading Process](docs/card-loading.md).
 
-2. **Tokenized Payments**
+2. **Tayp-To-Pay Transactions**
    During tap-to-pay, the terminal sends metadata (amount, merchant ID, nonce) to the phone.
    Walt signs this data using cryptographic keys associated with the DPAN and forwards the payload to the aggregator for authorization.
    Find more details in [NFC Transactions](docs/nfc-transactions.md).
