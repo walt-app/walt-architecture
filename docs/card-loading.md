@@ -14,7 +14,7 @@ Throughout this process, sensitive card data is encrypted and never passes throu
 
 ## Sequence Diagram
 
-The following diagram shows the complete manual card load flow, including local preflight checks, eligibility validation, optional verification, and token provisioning:
+The following diagram shows the optimal manual card load flow, including local preflight checks, eligibility validation, optional verification, and token provisioning:
 
 ```mermaid
 sequenceDiagram
