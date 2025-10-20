@@ -26,23 +26,23 @@ There’s no AI, no data mining, no ads — just a simple flow:
    The app calls the aggregator’s `/eligibility` API to validate the card and request a DPAN.
    Once approved, the DPAN is stored securely on the device for use in NFC transactions.
 
-   Find more details in [Card Loading Process](docs/card-loading.md).
+   Find more details in [Card Loading Process](docs/card-loading/README.md).
 
 2. **Tap-To-Pay Transactions**
    During tap-to-pay, the terminal sends metadata (amount, merchant ID, nonce) to the phone.
    Walt signs this data using cryptographic keys associated with the DPAN and forwards the payload to the aggregator for authorization.
 
-   Find more details in [NFC Transactions](docs/nfc-transactions.md).
+   Find more details in [NFC Transactions](docs/nfc-transactions/README.md).
 
 3. **Secure Storage**
    Keys and tokens are held in Android’s secure vault (TEE-backed Keystore), isolated from the app layer.
 
-   Find more details in [Secure Storage](docs/secure-storage.md).
+   Find more details in [Secure Storage](docs/secure-storage/README.md).
 
 4. **Privacy by Design**
    Walt does not collect transaction data, behavioral data, or analytics beyond what’s needed for security and compliance.
 
-   Find more details in [Privacy by Design](docs/privacy-by-design.md).
+   Find more details in [Privacy by Design](docs/privacy-by-design/README.md).
 
 ---
 
