@@ -32,7 +32,7 @@ There’s no AI, no data mining, no ads — just a simple flow:
    During tap-to-pay, the terminal sends metadata (amount, merchant ID, nonce) to the phone.
    Walt signs this data using cryptographic keys associated with the DPAN and forwards the payload to the aggregator for authorization.
 
-   Find more details in [NFC Transactions](docs/nfc-transactions/README.md).
+   Find more details in [NFC Transactions](docs/card-transactions/README.md).
 
 3. **Secure Storage**
    Keys and tokens are held in Android’s secure vault (TEE-backed Keystore), isolated from the app layer.

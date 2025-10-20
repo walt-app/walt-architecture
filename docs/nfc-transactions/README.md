@@ -43,3 +43,4 @@ sequenceDiagram
 
   POS->>NET: Send ISO 8583 authorization (with ARQC)
   NET-->>POS: Auth response (approved / declined)
+```
