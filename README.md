@@ -23,14 +23,16 @@ There’s no AI, no data mining, no ads — just a simple flow:
 
 1. **Card Loading**
    Users manually enter their PAN in the Walt app.
-   The app calls the aggregator’s `/eligibility` API to validate the card and request a DPAN.
+   Walt uses **MeaWallet's Mobile Token Platform (MTP)** to handle card digitization and tokenization.
+   The MTP SDK validates eligibility, coordinates with card networks (Visa/Mastercard), and provisions a secure DPAN on the device.
    Once approved, the DPAN is stored securely on the device for use in NFC transactions.
 
    Find more details in [Card Loading Process](docs/card-loading/README.md).
 
 2. **Tap-To-Pay Transactions**
-   During tap-to-pay, the terminal sends metadata (amount, merchant ID, nonce) to the phone.
-   Walt signs this data using cryptographic keys associated with the DPAN and forwards the payload to the aggregator for authorization.
+   During tap-to-pay, the terminal communicates via NFC using EMV Contactless protocols.
+   Walt's MTP SDK handles Host Card Emulation (HCE), generating cryptograms using keys associated with the DPAN.
+   The transaction is authorized through the card network without Walt servers being involved.
 
    Find more details in [NFC Transactions](docs/nfc-transactions/README.md).
 
@@ -48,8 +50,14 @@ There’s no AI, no data mining, no ads — just a simple flow:
 
 ## Status
 
-Walt is in the early architectural design phase.
-This repository will evolve as the app, integrations, and partnerships are developed.
+Walt is in **active development**. The Android app is being built with a multi-module Clean Architecture approach using Kotlin, Jetpack Compose, and the MeaWallet MTP SDK.
+
+**Current Phase**: Phase 1 - Foundation & Core Infrastructure (19/28 stories complete)
+
+### Implementation Details
+
+- **[Project Structure](docs/project-structure/)** - Multi-module organization and dependencies
+- **[Technology Stack](docs/technology-stack/)** - Technology choices and rationale
 
 Join the waitlist at **[walt.is](https://walt.is)** for updates.
 
