@@ -6,10 +6,13 @@ The card loading process is how users add their physical payment cards to Walt f
 
 ## Overview
 
-Before any card loading can occur, the MTP SDK must be initialized on app launch. The card loading process is then handled primarily by the MTP SDK:
+Before any card loading can occur, Walt verifies device capabilities and initializes the MTP SDK on app launch:
 
-0. **Initialize MTP SDK (every app launch)** — SDK performs device security checks (root detection, security posture, battery state). If this fails, Walt blocks ALL functionality.
-1. **Preflight checks** — Walt calls SDK to verify NFC/HCE availability and default wallet status
+1. **Initialization (every app launch)**:
+   - **Walt** checks device capabilities (NFC, Android version, system requirements)
+   - **Walt** gets Play Integrity attestation
+   - **MTP SDK** performs security checks (root detection, security posture, battery state)
+   - If SDK fails, Walt blocks ALL functionality
 2. **Card entry via SDK UI** — Walt invokes MTP SDK which presents its own card input UI
 3. **SDK handles provisioning** — MTP SDK communicates with aggregator and card network for eligibility/provisioning
 4. **Card provisioned (not yet active)** — SDK returns provisioned card to Walt, but card requires 3DS verification
@@ -23,12 +26,20 @@ Throughout this process, Walt never handles raw card data (PAN/CVC). The MTP SDK
 
 | Responsibility | Owner |
 |----------------|-------|
-| Device security checks (root, battery, security posture) | **MTP SDK** (via `/initialize`) |
-| NFC/HCE & default wallet check | **MTP SDK** |
+| **Device Capability Checks** | |
+| NFC hardware availability | **Walt** (Android APIs) |
+| Android version requirements | **Walt** (Android APIs) |
+| System requirements | **Walt** (Android APIs) |
+| **Security Checks** | |
+| Root/jailbreak detection | **MTP SDK** (via `initialize()`) |
+| Device security posture | **MTP SDK** (via `initialize()`) |
+| Battery state (anti-fraud) | **MTP SDK** (via `initialize()`) |
+| **Card Provisioning** | |
 | Card entry UI (PAN, expiry, CVC) | **MTP SDK** (presents its own UI) |
 | PAN encryption & transmission | **MTP SDK** |
 | Eligibility, provisioning network calls | **MTP SDK** |
 | 3DS/OTP initiation with issuing bank | **MTP SDK** |
+| **Walt Responsibilities** | |
 | Play Integrity attestation | **Walt** |
 | Triggering card load flow | **Walt** |
 | Forwarding 3DS verification to SDK | **Walt** |
@@ -48,7 +59,10 @@ sequenceDiagram
   participant Bank as Issuing Bank
   participant TSP as Card Network (VTS/MDES)
 
-  Note over App,SDK: Step 0: SDK Initialization (every app launch)
+  Note over App,SDK: Step 1: SDK Initialization (every app launch)
+  App->>App: Verify NFC/HCE & default wallet status
+  App-->>App: Device eligible
+  App->>App: Get Play Integrity attestation
   App->>SDK: initialize()
   SDK->>SDK: Root detection, security checks, battery state
   alt initialization fails
@@ -58,17 +72,8 @@ sequenceDiagram
     SDK-->>App: Success
   end
 
-  Note over User,App: User initiates card loading
-  User->>App: Tap "Add Card"
-
-  Note over App,SDK: Step 1: Preflight checks
-  App->>SDK: checkDeviceEligibility()
-  SDK->>SDK: Verify NFC/HCE & default wallet status
-  SDK-->>App: Device eligible
-
-  App->>App: Get Play Integrity attestation (Walt's responsibility)
-
   Note over App,SDK: Step 2: Card entry via SDK UI
+  User->>App: Tap "Add Card"
   App->>SDK: presentCardEntryUI()
   SDK->>User: Display card input form (PAN, expiry, CVC)
   User->>SDK: Enter card details
@@ -107,10 +112,27 @@ sequenceDiagram
 
 ## Key Steps Explained
 
-### 0. SDK Initialization (Every App Launch)
+### 1. Initialization (Every App Launch)
 
-Before any card loading can occur, Walt must initialize the MTP SDK on every app launch:
+On every app launch, Walt performs device capability checks and SDK security initialization:
 
+**Walt checks device capabilities** (using Android APIs):
+```kotlin
+// Walt verifies basic device requirements
+val hasNFC = packageManager.hasSystemFeature(PackageManager.FEATURE_NFC)
+val hasHCE = packageManager.hasSystemFeature(PackageManager.FEATURE_NFC_HOST_CARD_EMULATION)
+val meetsAndroidVersion = Build.VERSION.SDK_INT >= MIN_SDK_VERSION
+
+if (!hasNFC || !hasHCE || !meetsAndroidVersion) {
+    showDeviceNotSupportedError()
+    return
+}
+
+// Walt gets Play Integrity attestation
+val integrityToken = playIntegrity.requestToken()
+```
+
+**Then Walt initializes MTP SDK for security checks**:
 ```kotlin
 when (val result = mtpSdk.initialize(context)) {
     is Success -> {
@@ -124,31 +146,18 @@ when (val result = mtpSdk.initialize(context)) {
 }
 ```
 
-**What the SDK checks**:
+**What Walt checks** (Android APIs):
+- NFC hardware availability
+- HCE (Host Card Emulation) support
+- Android version requirements
+- System requirements
+
+**What MTP SDK checks** (via `initialize()`):
 - Root/jailbreak detection
 - Device security posture
 - Battery state (anti-fraud measure)
-- Other device-level security checks
 
-**What the SDK does NOT check**:
-- Play Integrity attestation (Walt's responsibility - see Step 1)
-
-**On failure**: Walt must block ALL functionality and display the SDK error. No card provisioning or payments are allowed on devices that fail security checks.
-
-### 1. Preflight Checks
-
-When user initiates card loading, Walt performs preflight checks:
-
-```kotlin
-// SDK checks device eligibility (NFC/HCE, default wallet)
-val deviceCheck = mtpSdk.checkDeviceEligibility()
-
-// Walt handles Play Integrity separately
-val integrityToken = playIntegrity.requestToken()
-```
-
-- **NFC/HCE & default wallet**: SDK verifies device capabilities
-- **Play Integrity**: Walt requests attestation token (SDK does NOT handle this)
+**On SDK failure**: Walt must block ALL functionality and display the SDK error. No card provisioning or payments are allowed on devices that fail security checks.
 
 ### 2. Card Entry via SDK UI
 
